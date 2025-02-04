@@ -16,3 +16,7 @@ A hierarchical state machine implemented in Python
 ## Usage
 
 See test/test.py for usage.
+
+To run unit tests:
+
+    python -m pytest tests
