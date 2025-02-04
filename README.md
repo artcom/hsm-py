@@ -12,3 +12,8 @@ A hierarchical state machine implemented in python
 ## System requirements
 
 - Python 3.x.x
+
+
+## Usage
+
+See test/test.py for usage.

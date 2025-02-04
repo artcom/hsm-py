@@ -1,11 +1,11 @@
 class Statemachine:
 
     def __init__(self, *states):
-        self.parent = None
         self.states = states
         self.initial_state = states[0]
         self.current_state = None
         self.events = []
+        self.parent = None
         self.set_parent(states)
 
     def set_parent(self, states):

@@ -20,24 +20,48 @@ sb.add_handler("SBtoA", a)
 a.add_handler("AtoSB", sb)
 
 
-# pa = a.path()
+def a_entry():
+    print("enter a")
 
-# for e in pa:
-#     print(e.name)
-# print("-----")
 
-# ps = s.path()
+def a_exit():
+    print("exit a")
 
-# for e in ps:
-#     print(e.name)
-# print("-----")
 
-# psb = sb.path()
+def s_entry():
+    print("enter s")
 
-# for e in psb:
-#     print(e.name)
-# print("-----")
 
+def s_exit():
+    print("exit s")
+
+
+def sa_entry():
+    print("enter sa")
+
+
+def sa_exit():
+    print("exit sa")
+
+
+def sb_entry():
+    print("enter sb")
+
+
+def sb_exit():
+    print("exit sb")
+
+
+a.enter_func = a_entry
+a.exit_func = a_exit
+
+s.enter_func = s_entry
+s.exit_func = s_exit
+
+sa.enter_func = sa_entry
+sa.exit_func = sa_exit
+sb.enter_func = sb_entry
+sb.exit_func = sb_exit
 
 hsm.setup()
 print(".")

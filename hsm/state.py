@@ -3,9 +3,11 @@ from hsm.event_handler import EventHandler
 
 class State:
     def __init__(self, name):
-        self.parent = None
         self.name = name
+        self.parent = None
         self.event_handlers = {}
+        self.enter_func = None
+        self.exit_func = None
 
     def add_handler(self, event, target):
         handler = EventHandler(event, target)
@@ -20,10 +22,12 @@ class State:
             return None
 
     def enter(self, source, target):
-        print(self.name + " enter")
+        if self.enter_func is not None:
+            self.enter_func()
 
     def exit(self, source, target):
-        print(self.name + " exit")
+        if self.exit_func is not None:
+            self.exit_func()
 
     def path(self):
         path = []
