@@ -60,6 +60,10 @@ sm.setup()
 # Handling events
 
 sm.handle_event("AtoS")
+
+# Passing data with event
+# Data will be available in enter, exit functions and actions of internal transitions
+
 sm.handle_event("AtoS", { "something": 123 })
 
 # Stopping the statemachine
