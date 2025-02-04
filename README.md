@@ -19,7 +19,7 @@ A hierarchical state machine implemented in Python
 from hsm import State
 from hsm import Statemachine
 
-# Create the state hierarchy:
+# Create the state hierarchy
 
 a = State("a")
 
@@ -29,7 +29,7 @@ s = Sub('s', Statemachine(s1, s2))
 
 sm = Statemachine(a, s)
 
-# Enter and exit methods
+# Enter and exit functions
 
 def a_enter(data):
     # your code
@@ -62,7 +62,7 @@ sm.setup()
 sm.handle_event("AtoS")
 sm.handle_event("AtoS", { "something": 123 })
 
-# Stopping the statemachine:
+# Stopping the statemachine
 
 sm.teardown()
 ```
