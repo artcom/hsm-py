@@ -173,3 +173,15 @@ def test_sub_switching(statemachine, sequence):
     statemachine.teardown()
     assert statemachine.current_state is None
     assert sequence == ["a:exit"]
+
+
+def test_event_queue(statemachine, sequence):
+    sequence.clear()
+    statemachine.handle_event("Ainternal")
+    statemachine.handle_event("AtoA")
+    statemachine.handle_event("AtoS")
+    statemachine.handle_event("S1toS2")
+    statemachine.handle_event("S2toS2")
+
+    assert sequence == ["a:internal", "a:exit", "a:enter", "a:exit",
+                        "s:enter", "s1:enter", "s1:exit", "s2:enter", "s2:exit", "s2:enter"]
