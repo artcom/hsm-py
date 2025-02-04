@@ -9,8 +9,8 @@ class State:
         self.enter_func = None
         self.exit_func = None
 
-    def add_handler(self, event, target):
-        handler = EventHandler(event, target)
+    def add_handler(self, event, target, action=None):
+        handler = EventHandler(event, target, action)
         if event not in self.event_handlers:
             self.event_handlers[event] = []
         self.event_handlers[event].append(handler)

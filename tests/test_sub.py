@@ -35,6 +35,11 @@ def statemachine_fixture(sequence):
     s2.add_handler("S2toT1", t1)
     t1.add_handler("T1toS1", s1)
 
+    def a_internal():
+        sequence.append("a:internal")
+
+    a.add_handler("Ainternal", a, a_internal)
+
     def a_enter():
         sequence.append("a:enter")
 
@@ -99,6 +104,13 @@ def statemachine_fixture(sequence):
 def test_sub_switching(statemachine, sequence):
     assert statemachine.current_state.name == "a"
     assert sequence == ["a:enter"]
+
+    sequence.clear()
+    statemachine.handle_event("Ainternal")
+    statemachine.handle_event("Ainternal")
+    statemachine.handle_event("Ainternal")
+    assert statemachine.current_state.name == "a"
+    assert sequence == ["a:internal", "a:internal", "a:internal"]
 
     sequence.clear()
     statemachine.handle_event("AtoA")
