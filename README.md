@@ -32,10 +32,10 @@ sm = Statemachine(a, s)
 # Enter and exit functions
 
 def a_enter(data):
-    # your code
+    # your code here
 
 def a_exit(data):
-    # your code
+    # your code here
 
 a.enter_func = a_enter
 a.exit_func = a_exit
@@ -49,7 +49,7 @@ s2.add_handler("backToA", a)
 # Define internal transitions
 
 def a_internal(data):
-    # your code
+    # your code here
 
 a.add_handler("Ainternal", a, a_internal)
 
