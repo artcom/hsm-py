@@ -1,6 +1,6 @@
 # HSM for Python
 
-A hierarchical state machine implemented in python
+A hierarchical state machine implemented in Python
 
 ## Features
 
