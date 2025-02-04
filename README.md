@@ -15,7 +15,7 @@ A hierarchical state machine implemented in Python
 
 ## Usage
 
-See test/test.py for usage.
+See tests/*.py for usage.
 
 To run unit tests:
 
