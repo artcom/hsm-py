@@ -2,9 +2,9 @@ from hsm.state import State, Sub
 from hsm.statemachine import Statemachine
 
 a = State("a")
-sa = State("sa")
-sb = State("sb")
-s = Sub('s', Statemachine(sa, sb))
+s1 = State("s1")
+s2 = State("s2")
+s = Sub('s', Statemachine(s1, s2))
 
 hsm = Statemachine(a, s)
 
@@ -12,12 +12,12 @@ hsm = Statemachine(a, s)
 a.add_handler("AtoS", s)
 s.add_handler("StoA", a)
 
-sa.add_handler("SAtoSB", sb)
-sb.add_handler("SBtoSA", sa)
+s1.add_handler("S1toS2", s2)
+s2.add_handler("S2toS1", s1)
 
-sa.add_handler("SAtoA", a)
-sb.add_handler("SBtoA", a)
-a.add_handler("AtoSB", sb)
+s1.add_handler("S1toA", a)
+s2.add_handler("S2toA", a)
+a.add_handler("AtoS2", s2)
 
 
 def a_entry():
@@ -36,20 +36,20 @@ def s_exit():
     print("exit s")
 
 
-def sa_entry():
-    print("enter sa")
+def s1_entry():
+    print("enter s1")
 
 
-def sa_exit():
-    print("exit sa")
+def s1_exit():
+    print("exit s1")
 
 
-def sb_entry():
-    print("enter sb")
+def s2_entry():
+    print("enter s2")
 
 
-def sb_exit():
-    print("exit sb")
+def s2_exit():
+    print("exit s2")
 
 
 a.enter_func = a_entry
@@ -58,24 +58,24 @@ a.exit_func = a_exit
 s.enter_func = s_entry
 s.exit_func = s_exit
 
-sa.enter_func = sa_entry
-sa.exit_func = sa_exit
-sb.enter_func = sb_entry
-sb.exit_func = sb_exit
+s1.enter_func = s1_entry
+s1.exit_func = s1_exit
+s2.enter_func = s2_entry
+s2.exit_func = s2_exit
 
 hsm.setup()
 print(".")
 
 
-hsm.handle_event("AtoSB")
+hsm.handle_event("AtoS2")
 print(".")
 
 hsm.handle_event("StoA")
 print(".")
-hsm.handle_event("SBtoSA")
+hsm.handle_event("S2toS1")
 print(".")
-hsm.handle_event("SAtoSB")
+hsm.handle_event("S1toS2")
 print(".")
 
-hsm.handle_event("SBtoA")
+hsm.handle_event("S2toA")
 print(".")
