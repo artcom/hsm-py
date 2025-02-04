@@ -52,5 +52,5 @@ class Sub(State):
         self.statemachine.teardown()
         super().exit(source, target, data)
 
-    def handle_event(self, event, data):
-        return self.statemachine.handle_event(event, data)
+    def handle(self, event, data):
+        return self.statemachine.handle(event, data)

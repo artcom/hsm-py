@@ -7,7 +7,7 @@ A hierarchical state machine implemented in Python
 - simple states
 - nested states (sub)
 - least common ancestor algorithm
-- run to completion
+- run to completion model
 
 ## System requirements
 

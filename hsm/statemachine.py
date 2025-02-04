@@ -5,8 +5,10 @@ class Statemachine:
         self.initial_state = states[0]
         self.current_state = None
         self.events = []
+        self.queue = []
         self.parent = None
         self.set_parent(states)
+        self.event_in_progress = False
 
     def set_parent(self, states):
         for s in states:
@@ -42,15 +44,27 @@ class Statemachine:
         self.current_state.exit(source, target, data)
         self.enter(source, target, data)
 
-    def handle_event(self, event, data=None):
+    def handle_event(self, name, data=None):
+        event = Event(name, data)
+        self.queue.append(event)
+
+        if self.event_in_progress:
+            return
+        self.event_in_progress = True
+        while len(self.queue) > 0:
+            current_event = self.queue.pop(0)
+            self.handle(current_event.name, current_event.data)
+        self.event_in_progress = False
+
+    def handle(self, name, data):
         if self.current_state is None:
             return False
 
-        if hasattr(self.current_state, 'handle_event') and callable(self.current_state.handle_event):
-            if self.current_state.handle_event(event, data) is True:
+        if hasattr(self.current_state, 'handle') and callable(self.current_state.handle):
+            if self.current_state.handle(name, data) is True:
                 return True
 
-        handlers = self.current_state.handlers_for_event(event)
+        handlers = self.current_state.handlers_for_event(name)
         if handlers is None:
             return False
 
