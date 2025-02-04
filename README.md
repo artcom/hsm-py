@@ -13,7 +13,6 @@ A hierarchical state machine implemented in Python
 
 - Python 3.x.x
 
-
 ## Usage
 
 See test/test.py for usage.
