@@ -35,51 +35,51 @@ def statemachine_fixture(sequence):
     s2.add_handler("S2toT1", t1)
     t1.add_handler("T1toS1", s1)
 
-    def a_internal():
+    def a_internal(data):
         sequence.append("a:internal")
 
     a.add_handler("Ainternal", a, a_internal)
 
-    def a_enter():
+    def a_enter(data):
         sequence.append("a:enter")
 
-    def a_exit():
+    def a_exit(data):
         sequence.append("a:exit")
 
-    def s_enter():
+    def s_enter(data):
         sequence.append("s:enter")
 
-    def s_exit():
+    def s_exit(data):
         sequence.append("s:exit")
 
-    def s1_enter():
+    def s1_enter(data):
         sequence.append("s1:enter")
 
-    def s1_exit():
+    def s1_exit(data):
         sequence.append("s1:exit")
 
-    def s2_enter():
+    def s2_enter(data):
         sequence.append("s2:enter")
 
-    def s2_exit():
+    def s2_exit(data):
         sequence.append("s2:exit")
 
-    def t_enter():
+    def t_enter(data):
         sequence.append("t:enter")
 
-    def t_exit():
+    def t_exit(data):
         sequence.append("t:exit")
 
-    def t1_enter():
+    def t1_enter(data):
         sequence.append("t1:enter")
 
-    def t1_exit():
+    def t1_exit(data):
         sequence.append("t1:exit")
 
-    def t2_enter():
+    def t2_enter(data):
         sequence.append("t2:enter")
 
-    def t2_exit():
+    def t2_exit(data):
         sequence.append("t2:exit")
 
     a.enter_func = a_enter

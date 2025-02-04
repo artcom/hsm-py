@@ -14,13 +14,13 @@ class Statemachine:
 
     def setup(self):
         self.current_state = self.initial_state
-        self.enter(None, self.initial_state)
+        self.enter(None, self.initial_state, None)
 
     def teardown(self):
-        self.exit(self.current_state, None)
+        self.exit(self.current_state, None, None)
         self.current_state = None
 
-    def enter(self, source, target):
+    def enter(self, source, target, data):
         target_level = len(target.parent.path())
         this_level = len(self.path())
 
@@ -33,21 +33,21 @@ class Statemachine:
             node = target_path[this_level]
             self.current_state = node.parent
 
-        self.current_state.enter(source, target)
+        self.current_state.enter(source, target, data)
 
-    def exit(self, source, target):
-        self.current_state.exit(source, target)
+    def exit(self, source, target, data):
+        self.current_state.exit(source, target, data)
 
-    def switch_state(self, source, target):
-        self.current_state.exit(source, target)
-        self.enter(source, target)
+    def switch_state(self, source, target, data):
+        self.current_state.exit(source, target, data)
+        self.enter(source, target, data)
 
-    def handle_event(self, event):
+    def handle_event(self, event, data=None):
         if self.current_state is None:
             return False
 
         if hasattr(self.current_state, 'handle_event') and callable(self.current_state.handle_event):
-            if self.current_state.handle_event(event) is True:
+            if self.current_state.handle_event(event, data) is True:
                 return True
 
         handlers = self.current_state.handlers_for_event(event)
@@ -56,8 +56,8 @@ class Statemachine:
 
         for handler in handlers:
             transition = Transition(
-                self.current_state, handler.target, handler.action, event)
-            if transition.perform_transition() is True:
+                self.current_state, handler.target, handler.action)
+            if transition.perform_transition(data) is True:
                 return True
         return False
 
@@ -73,19 +73,24 @@ class Statemachine:
         return path
 
 
+class Event:
+    def __init__(self, name, data):
+        self.name = name
+        self.data = data
+
+
 class Transition:
-    def __init__(self, source, target, action, event):
+    def __init__(self, source, target, action):
         self.source = source
         self.target = target
         self.action = action
-        self.event = event
 
-    def perform_transition(self):
+    def perform_transition(self, data):
         if self.action is not None:
-            self.action()
+            self.action(data)
         else:
             lca = self.find_lca()
-            lca.switch_state(self.source, self.target)
+            lca.switch_state(self.source, self.target, data)
         return True
 
     def find_lca(self):

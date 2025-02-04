@@ -21,13 +21,13 @@ class State:
         else:
             return None
 
-    def enter(self, source, target):
+    def enter(self, source, target, data):
         if self.enter_func is not None:
-            self.enter_func()
+            self.enter_func(data)
 
-    def exit(self, source, target):
+    def exit(self, source, target, data):
         if self.exit_func is not None:
-            self.exit_func()
+            self.exit_func(data)
 
     def path(self):
         path = []
@@ -44,13 +44,13 @@ class Sub(State):
         self.statemachine = statemachine
         self.statemachine.parent = self
 
-    def enter(self, source, target):
-        super().enter(source, target)
-        self.statemachine.enter(source, target)
+    def enter(self, source, target, data):
+        super().enter(source, target, data)
+        self.statemachine.enter(source, target, data)
 
-    def exit(self, source, target):
+    def exit(self, source, target, data):
         self.statemachine.teardown()
-        super().exit(source, target)
+        super().exit(source, target, data)
 
-    def handle_event(self, event):
-        return self.statemachine.handle_event(event)
+    def handle_event(self, event, data):
+        return self.statemachine.handle_event(event, data)
