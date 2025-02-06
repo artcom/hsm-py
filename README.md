@@ -71,10 +71,20 @@ sm.handle_event("AtoS", { "something": 123 })
 sm.teardown()
 ```
 
-For more examples see thte unit tests in `tests/*.py`
+For more examples see the unit tests in `tests/*.py`
 
 ## Development
 
+To install dev dependencies:
+
+```sh
+$ python3 -m venv venv
+$ source venv/bin/activate
+pip install -r requirements.txt
+```
+
 To run unit tests:
 
-    python -m pytest tests
+```sh
+$ python -m pytest tests
+```
