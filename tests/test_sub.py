@@ -28,10 +28,9 @@ def statemachine_fixture(sequence):
     a.add_handler("AtoS2", s2)
     s2.add_handler("S2toS2", s2)
     s.add_handler("StoA", a)
-    t.add_handler("TtoA", a)
     s1.add_handler("S1toS2", s2)
+    s1.add_handler("S1toS", s)
     s2.add_handler("S2toS1", s1)
-    s1.add_handler("S1toT2", t2)
     s2.add_handler("S2toT1", t1)
     t1.add_handler("T1toS1", s1)
 
@@ -122,6 +121,12 @@ def test_sub_switching(statemachine, sequence):
     assert statemachine.current_state.name == "s"
     assert statemachine.current_state.statemachine.current_state.name == "s1"
     assert sequence == ["a:exit", "s:enter", "s1:enter"]
+
+    sequence.clear()
+    statemachine.handle_event("S1toS")
+    assert statemachine.current_state.name == "s"
+    assert statemachine.current_state.statemachine.current_state.name == "s1"
+    assert sequence == ["s1:exit", "s:exit", "s:enter", "s1:enter"]
 
     sequence.clear()
     statemachine.handle_event("S1toS2")
