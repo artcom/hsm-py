@@ -1,6 +1,11 @@
 class Statemachine:
 
     def __init__(self, *states):
+        """
+        Creates a statemachine object
+
+        states (Arr): a list of state objects
+        """
         self.states = states
         self.initial_state = states[0]
         self.current_state = None
@@ -15,10 +20,16 @@ class Statemachine:
             s.parent = self
 
     def setup(self):
+        """
+        Starts the statemachine, enters the first state in list
+        """
         self.current_state = self.initial_state
         self.enter(None, self.initial_state, None)
 
     def teardown(self):
+        """
+        Stops the statemachine, exits the current state
+        """
         self.exit(self.current_state, None, None)
         self.current_state = None
 
@@ -45,6 +56,12 @@ class Statemachine:
         self.enter(source, target, data)
 
     def handle_event(self, name, data=None):
+        """
+        Performs a transition by given event name.
+
+        name (str): the name of the event
+        data (Any): data passed to enter, exit and action functions
+        """
         event = _Event(name, data)
         self.queue.append(event)
 

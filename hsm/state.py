@@ -1,5 +1,10 @@
 class State:
     def __init__(self, name):
+        """
+        Creates a state object
+
+        name (str): the name of the state
+        """
         self.name = name
         self.parent = None
         self.event_handlers = {}
@@ -7,6 +12,13 @@ class State:
         self.exit_func = None
 
     def add_handler(self, event, target, action=None):
+        """
+        Adds an event handler for state transitions
+
+        event (str): the name of the event
+        target (State): the state tot transition to
+        action (func) when not None the event will be handled by an internal transition
+        """
         handler = _EventHandler(event, target, action)
         if event not in self.event_handlers:
             self.event_handlers[event] = []
