@@ -1,3 +1,3 @@
-from .state import State, Sub
+from .state import State
+from .sub import Sub
 from .statemachine import Statemachine
-from .event_handler import EventHandler

@@ -1,7 +1,6 @@
 import pytest
 
-from hsm import State, Sub
-from hsm import Statemachine
+from hsm import State, Sub, Statemachine
 
 
 @pytest.fixture(name="sequence")

@@ -45,7 +45,7 @@ class Statemachine:
         self.enter(source, target, data)
 
     def handle_event(self, name, data=None):
-        event = Event(name, data)
+        event = _Event(name, data)
         self.queue.append(event)
 
         if self.event_in_progress:
@@ -69,7 +69,7 @@ class Statemachine:
             return False
 
         for handler in handlers:
-            transition = Transition(
+            transition = _Transition(
                 self.current_state, handler.target, handler.action)
             if transition.perform_transition(data) is True:
                 return True
@@ -87,13 +87,13 @@ class Statemachine:
         return path
 
 
-class Event:
+class _Event:
     def __init__(self, name, data):
         self.name = name
         self.data = data
 
 
-class Transition:
+class _Transition:
     def __init__(self, source, target, action):
         self.source = source
         self.target = target
