@@ -3,7 +3,8 @@ class State:
         """
         Creates a state object
 
-        name (str): the name of the state
+        Args:
+            name (str): the name of the state
         """
         self.name = name
         self.parent = None
@@ -15,9 +16,10 @@ class State:
         """
         Adds an event handler for state transitions
 
-        event (str): the name of the event
-        target (State): the state tot transition to
-        action (func) when not None the event will be handled by an internal transition
+        Args:
+            event (str): the name of the event
+            target (State): the state tot transition to
+            action (func) when not None the event will be handled by an internal transition
         """
         handler = _EventHandler(event, target, action)
         if event not in self.event_handlers:

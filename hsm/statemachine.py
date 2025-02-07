@@ -4,7 +4,8 @@ class Statemachine:
         """
         Creates a statemachine object
 
-        states (Arr): a list of state objects
+        Args:
+            states (list): a list of State objects
         """
         self.states = states
         self.initial_state = states[0]
