@@ -45,16 +45,15 @@ def statemachine_fixture(sequence):
 
 
 def test_sub_switching(statemachine, sequence):
-    assert statemachine.current_state.name == "a"
+    assert statemachine.active_states() == ["a"]
     assert sequence == ["a:enterNone"]
 
     sequence.clear()
     statemachine.handle_event("Ainternal", "_foobar")
-    assert statemachine.current_state.name == "a"
+    assert statemachine.active_states() == ["a"]
     assert sequence == ["a:internal_foobar"]
 
     sequence.clear()
     statemachine.handle_event("AtoS", "_123")
-    assert statemachine.current_state.name == "s"
-    assert statemachine.current_state.statemachine.current_state.name == "s1"
+    assert statemachine.active_states() == ["s", "s1"]
     assert sequence == ["a:exit_123", "s:enter_123", "s1:enter_123"]

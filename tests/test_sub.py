@@ -100,82 +100,74 @@ def statemachine_fixture(sequence):
 
 
 def test_sub_switching(statemachine, sequence):
-    assert statemachine.current_state.name == "a"
+    assert statemachine.active_states() == ["a"]
     assert sequence == ["a:enter"]
 
     sequence.clear()
     statemachine.handle_event("Ainternal")
     statemachine.handle_event("Ainternal")
     statemachine.handle_event("Ainternal")
-    assert statemachine.current_state.name == "a"
+    assert statemachine.active_states() == ["a"]
     assert sequence == ["a:internal", "a:internal", "a:internal"]
 
     sequence.clear()
     statemachine.handle_event("AtoA")
-    assert statemachine.current_state.name == "a"
+    assert statemachine.active_states() == ["a"]
     assert sequence == ["a:exit", "a:enter"]
 
     sequence.clear()
     statemachine.handle_event("AtoS")
-    assert statemachine.current_state.name == "s"
-    assert statemachine.current_state.statemachine.current_state.name == "s1"
+    assert statemachine.active_states() == ["s", "s1"]
     assert sequence == ["a:exit", "s:enter", "s1:enter"]
 
     sequence.clear()
     statemachine.handle_event("S1toS")
-    assert statemachine.current_state.name == "s"
-    assert statemachine.current_state.statemachine.current_state.name == "s1"
+    assert statemachine.active_states() == ["s", "s1"]
     assert sequence == ["s1:exit", "s:exit", "s:enter", "s1:enter"]
 
     sequence.clear()
     statemachine.handle_event("S1toS2")
-    assert statemachine.current_state.name == "s"
-    assert statemachine.current_state.statemachine.current_state.name == "s2"
+    assert statemachine.active_states() == ["s", "s2"]
     assert sequence == ["s1:exit", "s2:enter"]
 
     sequence.clear()
     statemachine.handle_event("S2toS2")
-    assert statemachine.current_state.name == "s"
-    assert statemachine.current_state.statemachine.current_state.name == "s2"
+    assert statemachine.active_states() == ["s", "s2"]
     assert sequence == ["s2:exit", "s2:enter"]
 
     sequence.clear()
     statemachine.handle_event("S2toS1")
-    assert statemachine.current_state.name == "s"
-    assert statemachine.current_state.statemachine.current_state.name == "s1"
+    assert statemachine.active_states() == ["s", "s1"]
     assert sequence == ["s2:exit", "s1:enter"]
 
     sequence.clear()
     statemachine.handle_event("StoA")
-    assert statemachine.current_state.name == "a"
+    assert statemachine.active_states() == ["a"]
     assert sequence == ["s1:exit", "s:exit", "a:enter"]
 
     sequence.clear()
     statemachine.handle_event("AtoS2")
-    assert statemachine.current_state.name == "s"
-    assert statemachine.current_state.statemachine.current_state.name == "s2"
+    assert statemachine.active_states() == ["s", "s2"]
     assert sequence == ["a:exit", "s:enter", "s2:enter"]
 
     sequence.clear()
     statemachine.handle_event("S2toT1")
-    assert statemachine.current_state.name == "t"
-    assert statemachine.current_state.statemachine.current_state.name == "t1"
+    assert statemachine.active_states() == ["t", "t1"]
     assert sequence == ["s2:exit", "s:exit", "t:enter", "t1:enter"]
 
     sequence.clear()
     statemachine.handle_event("T1toS1")
-    assert statemachine.current_state.name == "s"
-    assert statemachine.current_state.statemachine.current_state.name == "s1"
+    assert statemachine.active_states() == ["s", "s1"]
     assert sequence == ["t1:exit", "t:exit", "s:enter", "s1:enter"]
 
     sequence.clear()
     statemachine.handle_event("StoA")
-    assert statemachine.current_state.name == "a"
+    assert statemachine.active_states() == ["a"]
     assert sequence == ["s1:exit", "s:exit", "a:enter"]
 
     sequence.clear()
     statemachine.teardown()
-    assert statemachine.current_state is None
+    assert statemachine.active_states() == []
     assert sequence == ["a:exit"]
 
 

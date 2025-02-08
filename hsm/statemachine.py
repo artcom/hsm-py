@@ -1,3 +1,6 @@
+from collections import deque
+
+
 class Statemachine:
 
     def __init__(self, *states):
@@ -7,54 +10,31 @@ class Statemachine:
         Args:
             states (list): a list of State objects
         """
-        self.states = states
-        self.initial_state = states[0]
-        self.current_state = None
-        self.events = []
-        self.queue = []
-        self.parent = None
-        self.set_parent(states)
-        self.event_in_progress = False
+        self._states = states
+        self._initial_state = self._states[0]
+        self._current_state = None
 
-    def set_parent(self, states):
+        self._events = []
+        self._queue = deque()
+        self._event_in_progress = False
+
+        self.container = None
         for s in states:
-            s.parent = self
+            s.owner = self
 
     def setup(self):
         """
         Starts the statemachine, enters the first state in list
         """
-        self.current_state = self.initial_state
-        self.enter(None, self.initial_state, None)
+        self._current_state = self._initial_state
+        self.enter(None, self._initial_state, None)
 
     def teardown(self):
         """
         Stops the statemachine, exits the current state
         """
-        self.exit(self.current_state, None, None)
-        self.current_state = None
-
-    def enter(self, source, target, data):
-        target_level = len(target.parent.path())
-        this_level = len(self.path())
-
-        if target_level < this_level:
-            self.current_state = self.initial_state
-        elif target_level == this_level:
-            self.current_state = target
-        else:
-            target_path = target.parent.path()
-            node = target_path[this_level]
-            self.current_state = node.parent
-
-        self.current_state.enter(source, target, data)
-
-    def exit(self, source, target, data):
-        self.current_state.exit(source, target, data)
-
-    def switch_state(self, source, target, data):
-        self.current_state.exit(source, target, data)
-        self.enter(source, target, data)
+        self.exit(self._current_state, None, None)
+        self._current_state = None
 
     def handle_event(self, name, data=None):
         """
@@ -64,45 +44,70 @@ class Statemachine:
         data (Any): data passed to enter, exit and action functions
         """
         event = _Event(name, data)
-        self.queue.append(event)
+        self._queue.append(event)
 
-        if self.event_in_progress:
+        if self._event_in_progress:
             return
-        self.event_in_progress = True
-        while len(self.queue) > 0:
-            current_event = self.queue.pop(0)
+
+        self._event_in_progress = True
+        while len(self._queue) > 0:
+            current_event = self._queue.popleft()
             self.handle(current_event.name, current_event.data)
-        self.event_in_progress = False
+        self._event_in_progress = False
+
+    def enter(self, source, target, data):
+        target_path = target.owner.path()
+        target_level = len(target_path)
+        this_level = len(self.path())
+
+        if target_level < this_level:
+            self._current_state = self._initial_state
+        elif target_level == this_level:
+            self._current_state = target
+        else:
+            self._current_state = target_path[this_level].container
+        self._current_state.enter(source, target, data)
+
+    def exit(self, source, target, data):
+        self._current_state.exit(source, target, data)
+
+    def switch_state(self, source, target, data):
+        self._current_state.exit(source, target, data)
+        self.enter(source, target, data)
 
     def handle(self, name, data):
-        if self.current_state is None:
+        if self._current_state is None:
             return False
 
-        if hasattr(self.current_state, 'handle') and callable(self.current_state.handle):
-            if self.current_state.handle(name, data) is True:
+        if hasattr(self._current_state, 'handle') and callable(self._current_state.handle):
+            if self._current_state.handle(name, data) is True:
                 return True
 
-        handlers = self.current_state.handlers_for_event(name)
+        handlers = self._current_state.handlers_for_event(name)
         if handlers is None:
             return False
 
         for handler in handlers:
             transition = _Transition(
-                self.current_state, handler.target, handler.action)
+                self._current_state, handler.target, handler.action)
             if transition.perform_transition(data) is True:
                 return True
         return False
 
     def path(self):
-        path = []
-        statemachine = self
-        while (statemachine is not None):
-            path.insert(0, statemachine)
-            if statemachine.parent is not None:
-                statemachine = statemachine.parent.parent
-            else:
-                statemachine = None
+        path = [self]
+        while (path[0].container is not None):
+            path.insert(0, path[0].container.owner)
         return path
+
+    def active_states(self):
+        if self._current_state is None:
+            return []
+
+        states = [self._current_state.name]
+        if hasattr(self._current_state, 'statemachine'):
+            states.extend(self._current_state.statemachine.active_states())
+        return states
 
 
 class _Event:
@@ -113,26 +118,25 @@ class _Event:
 
 class _Transition:
     def __init__(self, source, target, action):
-        self.source = source
-        self.target = target
-        self.action = action
+        self._source = source
+        self._target = target
+        self._action = action
 
     def perform_transition(self, data):
-        if self.action is not None:
-            self.action(data)
+        if self._action is not None:
+            self._action(data)
         else:
-            lca = self.find_lca()
-            lca.switch_state(self.source, self.target, data)
+            lca = self._find_lca()
+            lca.switch_state(self._source, self._target, data)
         return True
 
-    def find_lca(self):
-        source_path = self.source.path()
-        target_path = self.target.path()
+    def _find_lca(self):
+        source_path = self._source.owner.path()
+        target_path = self._target.owner.path()
         lca = None
 
-        for e in reversed(source_path):
-            if isinstance(e, Statemachine):
-                if e in target_path:
-                    lca = e
-                    break
+        for statemachine in reversed(source_path):
+            if statemachine in target_path:
+                lca = statemachine
+                break
         return lca

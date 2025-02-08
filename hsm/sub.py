@@ -11,7 +11,7 @@ class Sub(State):
         """
         super().__init__(name)
         self.statemachine = statemachine
-        self.statemachine.parent = self
+        self.statemachine.container = self
 
     def enter(self, source, target, data):
         super().enter(source, target, data)
