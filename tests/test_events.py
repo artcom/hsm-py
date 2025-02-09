@@ -1,6 +1,6 @@
 import pytest
 
-from hsm import State, Sub, Statemachine
+from hsm import State, Sub, Statemachine, TransitionKind
 
 
 @pytest.fixture(name="sequence")
@@ -10,24 +10,22 @@ def sequence_fixture():
 
 @pytest.fixture(name="statemachine")
 def statemachine_fixture(sequence):
-
     s1 = State("s1")
     s2 = State("s2")
     s = Sub('s', Statemachine(s1, s2))
-
     sm = Statemachine(s)
 
     def s_internal(data):
         sequence.append("s:internal")
-    s.add_handler("internal", s, s_internal)
+    s.add_handler("internal", s, s_internal, TransitionKind.INTERNAL)
 
     def s1_internal(data):
         sequence.append("s1:internal")
-    s1.add_handler("internal", s1, s1_internal)
+    s1.add_handler("internal", s1, s1_internal, TransitionKind.INTERNAL)
 
     def s2_internal(data):
         sequence.append("s2:internal")
-    s2.add_handler("internal", s2, s2_internal)
+    s2.add_handler("internal", s2, s2_internal, TransitionKind.INTERNAL)
 
     s1.add_handler("leave", s2)
     s2.add_handler("leave", s1)
@@ -62,7 +60,6 @@ def statemachine_fixture(sequence):
 
 
 def test_event_bubbling(statemachine, sequence):
-
     sequence.clear()
     statemachine.handle_event("internal")
     assert sequence == ["s1:internal"]

@@ -1,4 +1,5 @@
 from collections import deque
+from hsm.transition_kind import TransitionKind
 
 
 class Statemachine:
@@ -10,49 +11,52 @@ class Statemachine:
         Args:
             states (list): a list of State objects
         """
+        for state in states:
+            state.owner = self
         self._states = states
-        self._initial_state = self._states[0]
-        self._current_state = None
+        self._state = None
 
-        self._events = []
         self._queue = deque()
         self._event_in_progress = False
-
         self.container = None
-        for s in states:
-            s.owner = self
 
     def setup(self):
         """
         Starts the statemachine, enters the first state in list
+
+        Raises:
+            RuntimeError: when no states are set
         """
-        self._current_state = self._initial_state
-        self.enter(None, self._initial_state, None)
+        if len(self._states) == 0:
+            raise RuntimeError("Statemachine.setup: Must have states!")
+
+        self._state = self._states[0]
+        self.enter(None, self._state, None)
 
     def teardown(self):
         """
         Stops the statemachine, exits the current state
         """
-        self.exit(self._current_state, None, None)
-        self._current_state = None
+        self.exit(self._state, None, None)
+        self._state = None
 
     def handle_event(self, name, data=None):
         """
         Performs a transition by given event name.
 
-        name (str): the name of the event
-        data (Any): data passed to enter, exit and action functions
+        Args:
+            name (str): the name of the event
+            data (Any): data passed to enter, exit and action functions
         """
-        event = _Event(name, data)
-        self._queue.append(event)
+        self._queue.append(_Event(name, data))
 
         if self._event_in_progress:
             return
 
         self._event_in_progress = True
         while len(self._queue) > 0:
-            current_event = self._queue.popleft()
-            self.handle(current_event.name, current_event.data)
+            event = self._queue.popleft()
+            self.handle(event.name, event.data)
         self._event_in_progress = False
 
     def enter(self, source, target, data):
@@ -61,35 +65,35 @@ class Statemachine:
         this_level = len(self.path())
 
         if target_level < this_level:
-            self._current_state = self._initial_state
+            self._state = self._states[0]
         elif target_level == this_level:
-            self._current_state = target
+            self._state = target
         else:
-            self._current_state = target_path[this_level].container
-        self._current_state.enter(source, target, data)
+            self._state = target_path[this_level].container
+        self._state.enter(source, target, data)
 
     def exit(self, source, target, data):
-        self._current_state.exit(source, target, data)
+        self._state.exit(source, target, data)
 
     def switch_state(self, source, target, data):
-        self._current_state.exit(source, target, data)
+        self._state.exit(source, target, data)
         self.enter(source, target, data)
 
     def handle(self, name, data):
-        if self._current_state is None:
+        if self._state is None:
             return False
 
-        if hasattr(self._current_state, 'handle') and callable(self._current_state.handle):
-            if self._current_state.handle(name, data) is True:
+        if hasattr(self._state, 'handle') and callable(self._state.handle):
+            if self._state.handle(name, data) is True:
                 return True
 
-        handlers = self._current_state.handlers_for_event(name)
+        handlers = self._state.handlers_for_event(name)
         if handlers is None:
             return False
 
         for handler in handlers:
             transition = _Transition(
-                self._current_state, handler.target, handler.action)
+                self._state, handler.target, handler.action, handler.kind)
             if transition.perform_transition(data) is True:
                 return True
         return False
@@ -101,12 +105,12 @@ class Statemachine:
         return path
 
     def active_states(self):
-        if self._current_state is None:
+        if self._state is None:
             return []
 
-        states = [self._current_state.name]
-        if hasattr(self._current_state, 'statemachine'):
-            states.extend(self._current_state.statemachine.active_states())
+        states = [self._state.name]
+        if hasattr(self._state, 'statemachine'):
+            states.extend(self._state.statemachine.active_states())
         return states
 
 
@@ -117,13 +121,14 @@ class _Event:
 
 
 class _Transition:
-    def __init__(self, source, target, action):
+    def __init__(self, source, target, action, kind):
         self._source = source
         self._target = target
         self._action = action
+        self._kind = kind
 
     def perform_transition(self, data):
-        if self._action is not None:
+        if self._kind == TransitionKind.INTERNAL and self._action is not None:
             self._action(data)
         else:
             lca = self._find_lca()

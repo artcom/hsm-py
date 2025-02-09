@@ -1,3 +1,6 @@
+from hsm.transition_kind import TransitionKind
+
+
 class State:
     def __init__(self, name):
         """
@@ -13,18 +16,31 @@ class State:
         self.enter_func = None
         self.exit_func = None
 
-    def add_handler(self, event, target, action=None):
+    def add_handler(self, event, target, action=None, kind=TransitionKind.EXTERNAL):
         """
         Adds an event handler for state transitions
 
         Args:
             event (str): the name of the event
-            target (State): the state tot transition to
-            action (func) when not None the event will be handled by an internal transition
+            target (State): the state to transition to
+            action (func): function to be executed on internal transition
+            kind (TransitionKind): kind of transition to perform
+
+        Raises:
+            RuntimeError: when source and target are not equal for internal transitions
+            RuntimeError: when no action is set for internal transition
         """
+        if kind == TransitionKind.INTERNAL and self != target:
+            raise RuntimeError(
+                "State.addhandler: Source and target states must be equal for internal transition!")
+
+        if kind == TransitionKind.INTERNAL and action is None:
+            raise RuntimeError(
+                "State.addhandler: Action must be set for internal transition!")
+
         if event not in self._event_handlers:
             self._event_handlers[event] = []
-        handler = _EventHandler(target, action)
+        handler = _EventHandler(target, action, kind)
         self._event_handlers[event].append(handler)
 
     def handlers_for_event(self, event):
@@ -43,6 +59,7 @@ class State:
 
 
 class _EventHandler:
-    def __init__(self, target, action):
+    def __init__(self, target, action, kind):
         self.target = target
         self.action = action
+        self.kind = kind

@@ -1,6 +1,6 @@
 import pytest
 
-from hsm import State, Sub, Statemachine
+from hsm import State, Sub, Statemachine, TransitionKind
 
 
 @pytest.fixture(name="sequence")
@@ -11,15 +11,12 @@ def sequence_fixture():
 @pytest.fixture(name="statemachine")
 def statemachine_fixture(sequence):
     a = State("a")
-
     s1 = State("s1")
     s2 = State("s2")
     s = Sub('s', Statemachine(s1, s2))
-
     t1 = State("t1")
     t2 = State("t2")
     t = Sub('t', Statemachine(t1, t2))
-
     sm = Statemachine(a, s, t)
 
     a.add_handler("AtoA", a)
@@ -36,7 +33,7 @@ def statemachine_fixture(sequence):
     def a_internal(data):
         sequence.append("a:internal")
 
-    a.add_handler("Ainternal", a, a_internal)
+    a.add_handler("Ainternal", a, a_internal, TransitionKind.INTERNAL)
 
     def a_enter(data):
         sequence.append("a:enter")

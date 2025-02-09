@@ -1,6 +1,6 @@
 import pytest
 
-from hsm import State, Sub, Statemachine
+from hsm import State, Sub, Statemachine, TransitionKind
 
 
 @pytest.fixture(name="sequence")
@@ -21,7 +21,7 @@ def statemachine_fixture(sequence):
     def a_internal(data):
         sequence.append("a:internal" + str(data))
 
-    a.add_handler("Ainternal", a, a_internal)
+    a.add_handler("Ainternal", a, a_internal, TransitionKind.INTERNAL)
 
     def a_enter(data):
         sequence.append("a:enter" + str(data))
@@ -44,14 +44,11 @@ def statemachine_fixture(sequence):
     yield sm
 
 
-def test_sub_switching(statemachine, sequence):
-    assert statemachine.active_states() == ["a"]
-    assert sequence == ["a:enterNone"]
-
+def test_data_flow(statemachine, sequence):
     sequence.clear()
-    statemachine.handle_event("Ainternal", "_foobar")
+    statemachine.handle_event("Ainternal", "_myData")
     assert statemachine.active_states() == ["a"]
-    assert sequence == ["a:internal_foobar"]
+    assert sequence == ["a:internal_myData"]
 
     sequence.clear()
     statemachine.handle_event("AtoS", "_123")

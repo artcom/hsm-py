@@ -9,6 +9,11 @@ A hierarchical state machine implemented in Python
 - least common ancestor algorithm
 - run to completion model
 
+### Missing features
+
+- local transitions
+- orthogonal regions (Parallel)
+
 ## System requirements
 
 - Python 3.x.x
@@ -48,10 +53,12 @@ s2.add_handler("backToA", a)
 
 # Define internal transitions
 
+from hsm import TransitionKind
+
 def a_internal(data):
     # your code here
 
-a.add_handler("Ainternal", a, a_internal)
+a.add_handler("Ainternal", a, a_internal, TransitionKind.INTERNAL)
 
 # Starting the statemachine
 

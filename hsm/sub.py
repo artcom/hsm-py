@@ -6,8 +6,9 @@ class Sub(State):
         """
         Creates a nested state object
 
-        name (str): the name of the state
-        statemachine (Statemachine): the statemachine containing the nested state objects
+        Args:
+            name (str): the name of the state
+            statemachine (Statemachine): the statemachine containing the nested state objects
         """
         super().__init__(name)
         self.statemachine = statemachine
