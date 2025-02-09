@@ -129,12 +129,15 @@ class _Transition:
         self._kind = kind
 
     def perform_transition(self, data):
-        if self._kind == TransitionKind.EXTERNAL:
-            return self._perform_external_transition(data)
-        elif self._kind == TransitionKind.INTERNAL:
-            return self._perform_internal_transition(data)
-        else:
-            return self._perform_local_transition(data)
+        match self._kind:
+            case TransitionKind.EXTERNAL:
+                return self._perform_external_transition(data)
+            case TransitionKind.INTERNAL:
+                return self._perform_internal_transition(data)
+            case TransitionKind.LOCAL:
+                return self._perform_local_transition(data)
+            case _:
+                pass
 
     def _perform_external_transition(self, data):
         lca = self._find_lca()
@@ -147,7 +150,7 @@ class _Transition:
         return True
 
     def _perform_local_transition(self, data):
-        if self._source.has_ancestor(self._target) and not self._target.has_ancestor(self._source):
+        if not self._source.has_ancestor(self._target) and not self._target.has_ancestor(self._source):
             return False
 
         lca = self._find_lca()

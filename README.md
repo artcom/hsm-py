@@ -6,12 +6,12 @@ A hierarchical state machine implemented in Python
 
 - simple states
 - nested states (sub)
+- external, internal and local transitions
 - least common ancestor algorithm
 - run to completion model
 
 ### Missing features
 
-- local transitions
 - guard conditions
 - orthogonal regions (Parallel)
 
