@@ -1,4 +1,5 @@
 from hsm.transition_kind import TransitionKind
+from hsm.event_handler import EventHandler
 
 
 class State:
@@ -41,7 +42,7 @@ class State:
 
         if event not in self._event_handlers:
             self._event_handlers[event] = []
-        handler = _EventHandler(target, guard, action, kind)
+        handler = EventHandler(target, guard, action, kind)
         self._event_handlers[event].append(handler)
 
     def handlers_for_event(self, event):
@@ -66,15 +67,7 @@ class State:
         return self.owner.container.has_ancestor(other)
 
     def has_ancestor_statemachine(self, statemachine):
-        for e in self.owner.path():
-            if e == statemachine:
+        for sm in self.owner.path():
+            if sm == statemachine:
                 return True
         return False
-
-
-class _EventHandler:
-    def __init__(self, target, guard, action, kind):
-        self.target = target
-        self.guard = guard
-        self.action = action
-        self.kind = kind

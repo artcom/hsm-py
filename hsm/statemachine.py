@@ -1,4 +1,6 @@
 from collections import deque
+
+from hsm.state import EventHandler
 from hsm.transition_kind import TransitionKind
 
 
@@ -94,7 +96,7 @@ class Statemachine:
             if self.state.handle(name, data) is True:
                 return True
 
-        handlers = self.state.handlers_for_event(name)
+        handlers: EventHandler = self.state.handlers_for_event(name)
         if handlers is None:
             return False
 
@@ -138,6 +140,7 @@ class _Transition:
     def perform_transition(self, data):
         if not self._can_perform_transition(data):
             return False
+
         match self._kind:
             case TransitionKind.EXTERNAL:
                 return self._perform_external_transition(data)
@@ -146,7 +149,7 @@ class _Transition:
             case TransitionKind.LOCAL:
                 return self._perform_local_transition(data)
             case _:
-                pass
+                return False
 
     def _can_perform_transition(self, data):
         return self._guard is None or self._guard(data)
@@ -166,8 +169,6 @@ class _Transition:
             return False
 
         lca = self._find_lca()
-        if not hasattr(lca.state, 'statemachine'):
-            return False
         lca = lca.state.statemachine
         lca.switch_state(self._source, self._target, data)
         return True
