@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 setup(
     name='hsm-py',
     packages=find_packages(include=['hsm']),
-    version='1.3.0',
+    version='1.5.0',
     description='A hierarchical state machine implemented in Python',
     author='julian.krumow@artcom.de',
     install_requires=[],
