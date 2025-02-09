@@ -7,12 +7,12 @@ A hierarchical state machine implemented in Python
 - simple states
 - nested states (sub)
 - external, internal and local transitions
+- guard conditions
 - least common ancestor algorithm
 - run to completion model
 
 ### Missing features
 
-- guard conditions
 - orthogonal regions (Parallel)
 
 ## System requirements
@@ -59,7 +59,18 @@ from hsm import TransitionKind
 def a_internal(data):
     # your code here
 
-a.add_handler("Ainternal", a, a_internal, TransitionKind.INTERNAL)
+a.add_handler("Ainternal", a, action=a_internal, kind=TransitionKind.INTERNAL)
+
+# Define local transitions
+
+s.add_handler("Stos2", s2, kind=TransitionKind.LOCAL)
+
+# Define guard conditions
+
+def my_guard(data):
+    return foo not in bar
+
+a.add_handler("AtoS", s, guard=my_guard)
 
 # Starting the statemachine
 

@@ -8,8 +8,8 @@ def sequence_fixture():
     yield []
 
 
-@pytest.fixture(name="statemachine_local")
-def statemachine_fixture_local(sequence):
+@pytest.fixture(name="statemachine")
+def statemachine_fixture(sequence):
     s11 = State("s11")
     s12 = State("s12")
     s1 = Sub('s1', Statemachine(s11, s12))
@@ -50,10 +50,8 @@ def statemachine_fixture_local(sequence):
     s12.exit_func = s12_exit
 
     s11.add_handler("initial", s12)
-
-    s12.add_handler("local_down", s1, None, TransitionKind.LOCAL)
-    s1.add_handler("local_up", s12, None, TransitionKind.LOCAL)
-
+    s12.add_handler("local_down", s1, kind=TransitionKind.LOCAL)
+    s1.add_handler("local_up", s12, kind=TransitionKind.LOCAL)
     s12.add_handler("local_down_double", s, kind=TransitionKind.LOCAL)
     s.add_handler("local_up_double", s12, kind=TransitionKind.LOCAL)
 
@@ -61,29 +59,29 @@ def statemachine_fixture_local(sequence):
     yield sm
 
 
-def test_local_transitions_one_level(statemachine_local, sequence):
-    statemachine_local.handle_event("initial")
+def test_local_transitions_one_level(statemachine, sequence):
+    statemachine.handle_event("initial")
 
     sequence.clear()
-    statemachine_local.handle_event("local_down")
-    assert statemachine_local.active_states() == ["s", "s1", "s11"]
+    statemachine.handle_event("local_down")
+    assert statemachine.active_states() == ["s", "s1", "s11"]
     assert sequence == ["s12:exit", "s11:enter"]
 
     sequence.clear()
-    statemachine_local.handle_event("local_up")
-    assert statemachine_local.active_states() == ["s", "s1", "s12"]
+    statemachine.handle_event("local_up")
+    assert statemachine.active_states() == ["s", "s1", "s12"]
     assert sequence == ["s11:exit", "s12:enter"]
 
 
-def test_local_transitions_two_levels(statemachine_local, sequence):
-    statemachine_local.handle_event("initial")
+def test_local_transitions_two_levels(statemachine, sequence):
+    statemachine.handle_event("initial")
 
     sequence.clear()
-    statemachine_local.handle_event("local_down_double")
-    assert statemachine_local.active_states() == ["s", "s1", "s11"]
+    statemachine.handle_event("local_down_double")
+    assert statemachine.active_states() == ["s", "s1", "s11"]
     assert sequence == ["s12:exit", "s1:exit", "s1:enter", "s11:enter"]
 
     sequence.clear()
-    statemachine_local.handle_event("local_up_double")
-    assert statemachine_local.active_states() == ["s", "s1", "s12"]
+    statemachine.handle_event("local_up_double")
+    assert statemachine.active_states() == ["s", "s1", "s12"]
     assert sequence == ["s11:exit", "s1:exit", "s1:enter", "s12:enter"]

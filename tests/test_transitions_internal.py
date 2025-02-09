@@ -16,8 +16,6 @@ def statemachine_fixture(sequence):
     def a_internal(_):
         sequence.append("a:internal")
 
-    a.add_handler("Ainternal", a, a_internal, TransitionKind.INTERNAL)
-
     def a_enter(_):
         sequence.append("a:enter")
 
@@ -26,6 +24,9 @@ def statemachine_fixture(sequence):
 
     a.enter_func = a_enter
     a.exit_func = a_exit
+
+    a.add_handler("Ainternal", a, action=a_internal,
+                  kind=TransitionKind.INTERNAL)
 
     sm.setup()
     yield sm

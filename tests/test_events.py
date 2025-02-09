@@ -17,18 +17,12 @@ def statemachine_event_bubbling_fixture(sequence):
 
     def s_internal(_):
         sequence.append("s:internal")
-    s.add_handler("internal", s, s_internal, TransitionKind.INTERNAL)
 
     def s1_internal(_):
         sequence.append("s1:internal")
-    s1.add_handler("internal", s1, s1_internal, TransitionKind.INTERNAL)
 
     def s2_internal(_):
         sequence.append("s2:internal")
-    s2.add_handler("internal", s2, s2_internal, TransitionKind.INTERNAL)
-
-    s1.add_handler("leave", s2)
-    s2.add_handler("leave", s1)
 
     def s_enter(_):
         sequence.append("s:enter")
@@ -55,6 +49,15 @@ def statemachine_event_bubbling_fixture(sequence):
     s2.enter_func = s2_enter
     s2.exit_func = s2_exit
 
+    s.add_handler("internal", s, action=s_internal,
+                  kind=TransitionKind.INTERNAL)
+    s1.add_handler("internal", s1, action=s1_internal,
+                   kind=TransitionKind.INTERNAL)
+    s2.add_handler("internal", s2, action=s2_internal,
+                   kind=TransitionKind.INTERNAL)
+    s1.add_handler("leave", s2)
+    s2.add_handler("leave", s1)
+
     sm.setup()
     yield sm
 
@@ -67,15 +70,8 @@ def statemachine_event_queue_fixture(sequence):
     s = Sub('s', Statemachine(s1, s2))
     sm = Statemachine(a, s)
 
-    a.add_handler("AtoA", a)
-    a.add_handler("AtoS", s)
-    s2.add_handler("S2toS2", s2)
-    s1.add_handler("S1toS2", s2)
-
     def a_internal(_):
         sequence.append("a:internal")
-
-    a.add_handler("Ainternal", a, a_internal, TransitionKind.INTERNAL)
 
     def a_enter(_):
         sequence.append("a:enter")
@@ -109,6 +105,13 @@ def statemachine_event_queue_fixture(sequence):
     s1.exit_func = s1_exit
     s2.enter_func = s2_enter
     s2.exit_func = s2_exit
+
+    a.add_handler("AtoA", a)
+    a.add_handler("AtoS", s)
+    s2.add_handler("S2toS2", s2)
+    s1.add_handler("S1toS2", s2)
+    a.add_handler("Ainternal", a, action=a_internal,
+                  kind=TransitionKind.INTERNAL)
 
     sm.setup()
     yield sm

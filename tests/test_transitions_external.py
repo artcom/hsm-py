@@ -8,8 +8,8 @@ def sequence_fixture():
     yield []
 
 
-@pytest.fixture(name="statemachine_external")
-def statemachine_fixture_external(sequence):
+@pytest.fixture(name="statemachine")
+def statemachine_fixture(sequence):
     a = State("a")
     s1 = State("s1")
     s2 = State("s2")
@@ -19,21 +19,8 @@ def statemachine_fixture_external(sequence):
     t = Sub('t', Statemachine(t1, t2))
     sm = Statemachine(a, s, t)
 
-    a.add_handler("AtoA", a)
-    a.add_handler("AtoS", s)
-    a.add_handler("AtoS2", s2)
-    s2.add_handler("S2toS2", s2)
-    s.add_handler("StoA", a)
-    s1.add_handler("S1toS2", s2)
-    s1.add_handler("S1toS", s)
-    s2.add_handler("S2toS1", s1)
-    s2.add_handler("S2toT1", t1)
-    t1.add_handler("T1toS1", s1)
-
     def a_internal(_):
         sequence.append("a:internal")
-
-    a.add_handler("Ainternal", a, a_internal, TransitionKind.INTERNAL)
 
     def a_enter(_):
         sequence.append("a:enter")
@@ -92,67 +79,81 @@ def statemachine_fixture_external(sequence):
     t2.enter_func = t2_enter
     t2.exit_func = t2_exit
 
+    a.add_handler("Ainternal", a, action=a_internal,
+                  kind=TransitionKind.INTERNAL)
+
+    a.add_handler("AtoA", a)
+    a.add_handler("AtoS", s)
+    a.add_handler("AtoS2", s2)
+    s2.add_handler("S2toS2", s2)
+    s.add_handler("StoA", a)
+    s1.add_handler("S1toS2", s2)
+    s1.add_handler("S1toS", s)
+    s2.add_handler("S2toS1", s1)
+    s2.add_handler("S2toT1", t1)
+    t1.add_handler("T1toS1", s1)
+
     sm.setup()
     yield sm
 
 
-def test_external_transitions(statemachine_external, sequence):
+def test_external_transitions(statemachine, sequence):
     sequence.clear()
-    statemachine_external.handle_event("AtoA")
-    assert statemachine_external.active_states() == ["a"]
+    statemachine.handle_event("AtoA")
+    assert statemachine.active_states() == ["a"]
     assert sequence == ["a:exit", "a:enter"]
 
     sequence.clear()
-    statemachine_external.handle_event("AtoS")
-    assert statemachine_external.active_states() == ["s", "s1"]
+    statemachine.handle_event("AtoS")
+    assert statemachine.active_states() == ["s", "s1"]
     assert sequence == ["a:exit", "s:enter", "s1:enter"]
 
     sequence.clear()
-    statemachine_external.handle_event("S1toS")
-    assert statemachine_external.active_states() == ["s", "s1"]
+    statemachine.handle_event("S1toS")
+    assert statemachine.active_states() == ["s", "s1"]
     assert sequence == ["s1:exit", "s:exit", "s:enter", "s1:enter"]
 
     sequence.clear()
-    statemachine_external.handle_event("S1toS2")
-    assert statemachine_external.active_states() == ["s", "s2"]
+    statemachine.handle_event("S1toS2")
+    assert statemachine.active_states() == ["s", "s2"]
     assert sequence == ["s1:exit", "s2:enter"]
 
     sequence.clear()
-    statemachine_external.handle_event("S2toS2")
-    assert statemachine_external.active_states() == ["s", "s2"]
+    statemachine.handle_event("S2toS2")
+    assert statemachine.active_states() == ["s", "s2"]
     assert sequence == ["s2:exit", "s2:enter"]
 
     sequence.clear()
-    statemachine_external.handle_event("S2toS1")
-    assert statemachine_external.active_states() == ["s", "s1"]
+    statemachine.handle_event("S2toS1")
+    assert statemachine.active_states() == ["s", "s1"]
     assert sequence == ["s2:exit", "s1:enter"]
 
     sequence.clear()
-    statemachine_external.handle_event("StoA")
-    assert statemachine_external.active_states() == ["a"]
+    statemachine.handle_event("StoA")
+    assert statemachine.active_states() == ["a"]
     assert sequence == ["s1:exit", "s:exit", "a:enter"]
 
     sequence.clear()
-    statemachine_external.handle_event("AtoS2")
-    assert statemachine_external.active_states() == ["s", "s2"]
+    statemachine.handle_event("AtoS2")
+    assert statemachine.active_states() == ["s", "s2"]
     assert sequence == ["a:exit", "s:enter", "s2:enter"]
 
     sequence.clear()
-    statemachine_external.handle_event("S2toT1")
-    assert statemachine_external.active_states() == ["t", "t1"]
+    statemachine.handle_event("S2toT1")
+    assert statemachine.active_states() == ["t", "t1"]
     assert sequence == ["s2:exit", "s:exit", "t:enter", "t1:enter"]
 
     sequence.clear()
-    statemachine_external.handle_event("T1toS1")
-    assert statemachine_external.active_states() == ["s", "s1"]
+    statemachine.handle_event("T1toS1")
+    assert statemachine.active_states() == ["s", "s1"]
     assert sequence == ["t1:exit", "t:exit", "s:enter", "s1:enter"]
 
     sequence.clear()
-    statemachine_external.handle_event("StoA")
-    assert statemachine_external.active_states() == ["a"]
+    statemachine.handle_event("StoA")
+    assert statemachine.active_states() == ["a"]
     assert sequence == ["s1:exit", "s:exit", "a:enter"]
 
     sequence.clear()
-    statemachine_external.teardown()
-    assert statemachine_external.active_states() == []
+    statemachine.teardown()
+    assert statemachine.active_states() == []
     assert sequence == ["a:exit"]

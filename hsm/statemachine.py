@@ -47,7 +47,7 @@ class Statemachine:
 
         Args:
             name (str): the name of the event
-            data (Any): data passed to enter, exit and action functions
+            data (Any): data passed to enter, exit and action functions. Can be None.
         """
         self._queue.append(_Event(name, data))
 
@@ -94,7 +94,7 @@ class Statemachine:
 
         for handler in handlers:
             transition = _Transition(
-                self.state, handler.target, handler.action, handler.kind)
+                self.state, handler.target, handler.guard, handler.action, handler.kind)
             if transition.perform_transition(data) is True:
                 return True
         return False
@@ -122,13 +122,16 @@ class _Event:
 
 
 class _Transition:
-    def __init__(self, source, target, action, kind):
+    def __init__(self, source, target, guard, action, kind):
         self._source = source
         self._target = target
+        self._guard = guard
         self._action = action
         self._kind = kind
 
     def perform_transition(self, data):
+        if not self._can_perform_transition(data):
+            return False
         match self._kind:
             case TransitionKind.EXTERNAL:
                 return self._perform_external_transition(data)
@@ -138,6 +141,9 @@ class _Transition:
                 return self._perform_local_transition(data)
             case _:
                 pass
+
+    def _can_perform_transition(self, data):
+        return self._guard is None or self._guard(data)
 
     def _perform_external_transition(self, data):
         lca = self._find_lca()
