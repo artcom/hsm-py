@@ -19,8 +19,11 @@ class Sub(State):
         self.statemachine.enter(source, target, data)
 
     def exit(self, source, target, data):
-        self.statemachine.teardown()
+        self.statemachine.teardown(data)
         super().exit(source, target, data)
 
     def handle(self, event, data):
         return self.statemachine.handle(event, data)
+
+    def active_states(self):
+        return self.statemachine.active_states()

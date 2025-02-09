@@ -65,6 +65,12 @@ class State:
             return True
         return self.owner.container.has_ancestor(other)
 
+    def has_ancestor_statemachine(self, statemachine):
+        for e in self.owner.path():
+            if e == statemachine:
+                return True
+        return False
+
 
 class _EventHandler:
     def __init__(self, target, guard, action, kind):

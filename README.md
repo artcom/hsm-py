@@ -5,25 +5,24 @@ A hierarchical state machine implemented in Python
 ## Features
 
 - simple states
-- nested states (sub)
+- nested states (Sub)
+- orthogonal regions (Parallel)
 - external, internal and local transitions
 - guard conditions
 - least common ancestor algorithm
 - run to completion model
 
-### Missing features
-
-- orthogonal regions (Parallel)
-
 ## System requirements
 
-- Python 3.x.x
+- Python 3.11.x
 
 ## Usage
 
 ```py
 from hsm import State
 from hsm import Statemachine
+from hsm import Sub
+from hsm import Parallel
 
 # Create the state hierarchy
 
@@ -32,8 +31,9 @@ a = State("a")
 s1 = State("s1")
 s2 = State("s2")
 s = Sub('s', Statemachine(s1, s2))
+p = Parallel('p', Statemachine(p1, p2), Statemachine(p3, p4))
 
-sm = Statemachine(a, s)
+sm = Statemachine(a, s, p)
 
 # Enter and exit functions
 
@@ -50,7 +50,7 @@ a.exit_func = a_exit
 
 a.add_handler("AtoS", s)
 s1.add_handler("S1toS2", s2)
-s2.add_handler("backToA", a)
+s2.add_handler("BackToA", a)
 
 # Define internal transitions
 

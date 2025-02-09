@@ -21,9 +21,12 @@ class Statemachine:
         self.state = None
         self.container = None
 
-    def setup(self):
+    def setup(self, data=None):
         """
         Starts the statemachine, enters the first state in list
+
+        Args:
+            data (Any): data passed to enter, exit and action functions. Can be None.
 
         Raises:
             RuntimeError: when no states are set
@@ -32,13 +35,16 @@ class Statemachine:
             raise RuntimeError("Statemachine.setup: Must have states!")
 
         self.state = self._states[0]
-        self.enter(None, self.state, None)
+        self.enter(None, self.state, data)
 
-    def teardown(self):
+    def teardown(self, data=None):
         """
         Stops the statemachine, exits the current state
+
+        Args:
+            data (Any): data passed to enter, exit and action functions. Can be None.
         """
-        self.exit(self.state, None, None)
+        self.exit(self.state, None, data)
         self.state = None
 
     def handle_event(self, name, data=None):
@@ -110,8 +116,8 @@ class Statemachine:
             return []
 
         states = [self.state.name]
-        if hasattr(self.state, 'statemachine'):
-            states.extend(self.state.statemachine.active_states())
+        if hasattr(self.state, 'active_states') and callable(self.state.active_states):
+            states.extend(self.state.active_states())
         return states
 
 
@@ -160,6 +166,8 @@ class _Transition:
             return False
 
         lca = self._find_lca()
+        if not hasattr(lca.state, 'statemachine'):
+            return False
         lca = lca.state.statemachine
         lca.switch_state(self._source, self._target, data)
         return True
