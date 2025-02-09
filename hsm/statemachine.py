@@ -14,10 +14,11 @@ class Statemachine:
         for state in states:
             state.owner = self
         self._states = states
-        self._state = None
 
         self._queue = deque()
         self._event_in_progress = False
+
+        self.state = None
         self.container = None
 
     def setup(self):
@@ -30,15 +31,15 @@ class Statemachine:
         if len(self._states) == 0:
             raise RuntimeError("Statemachine.setup: Must have states!")
 
-        self._state = self._states[0]
-        self.enter(None, self._state, None)
+        self.state = self._states[0]
+        self.enter(None, self.state, None)
 
     def teardown(self):
         """
         Stops the statemachine, exits the current state
         """
-        self.exit(self._state, None, None)
-        self._state = None
+        self.exit(self.state, None, None)
+        self.state = None
 
     def handle_event(self, name, data=None):
         """
@@ -65,35 +66,35 @@ class Statemachine:
         this_level = len(self.path())
 
         if target_level < this_level:
-            self._state = self._states[0]
+            self.state = self._states[0]
         elif target_level == this_level:
-            self._state = target
+            self.state = target
         else:
-            self._state = target_path[this_level].container
-        self._state.enter(source, target, data)
+            self.state = target_path[this_level].container
+        self.state.enter(source, target, data)
 
     def exit(self, source, target, data):
-        self._state.exit(source, target, data)
+        self.state.exit(source, target, data)
 
     def switch_state(self, source, target, data):
-        self._state.exit(source, target, data)
+        self.state.exit(source, target, data)
         self.enter(source, target, data)
 
     def handle(self, name, data):
-        if self._state is None:
+        if self.state is None:
             return False
 
-        if hasattr(self._state, 'handle') and callable(self._state.handle):
-            if self._state.handle(name, data) is True:
+        if hasattr(self.state, 'handle') and callable(self.state.handle):
+            if self.state.handle(name, data) is True:
                 return True
 
-        handlers = self._state.handlers_for_event(name)
+        handlers = self.state.handlers_for_event(name)
         if handlers is None:
             return False
 
         for handler in handlers:
             transition = _Transition(
-                self._state, handler.target, handler.action, handler.kind)
+                self.state, handler.target, handler.action, handler.kind)
             if transition.perform_transition(data) is True:
                 return True
         return False
@@ -105,12 +106,12 @@ class Statemachine:
         return path
 
     def active_states(self):
-        if self._state is None:
+        if self.state is None:
             return []
 
-        states = [self._state.name]
-        if hasattr(self._state, 'statemachine'):
-            states.extend(self._state.statemachine.active_states())
+        states = [self.state.name]
+        if hasattr(self.state, 'statemachine'):
+            states.extend(self.state.statemachine.active_states())
         return states
 
 
@@ -128,11 +129,30 @@ class _Transition:
         self._kind = kind
 
     def perform_transition(self, data):
-        if self._kind == TransitionKind.INTERNAL and self._action is not None:
-            self._action(data)
+        if self._kind == TransitionKind.EXTERNAL:
+            return self._perform_external_transition(data)
+        elif self._kind == TransitionKind.INTERNAL:
+            return self._perform_internal_transition(data)
         else:
-            lca = self._find_lca()
-            lca.switch_state(self._source, self._target, data)
+            return self._perform_local_transition(data)
+
+    def _perform_external_transition(self, data):
+        lca = self._find_lca()
+        lca.switch_state(self._source, self._target, data)
+        return True
+
+    def _perform_internal_transition(self, data):
+        if self._action is not None:
+            self._action(data)
+        return True
+
+    def _perform_local_transition(self, data):
+        if self._source.has_ancestor(self._target) and not self._target.has_ancestor(self._source):
+            return False
+
+        lca = self._find_lca()
+        lca = lca.state.statemachine
+        lca.switch_state(self._source, self._target, data)
         return True
 
     def _find_lca(self):

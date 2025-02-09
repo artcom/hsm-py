@@ -57,6 +57,13 @@ class State:
         if self.exit_func is not None:
             self.exit_func(data)
 
+    def has_ancestor(self, other):
+        if self.owner.container is None:
+            return False
+        if self.owner.container == other:
+            return True
+        return self.owner.container.has_ancestor(other)
+
 
 class _EventHandler:
     def __init__(self, target, action, kind):

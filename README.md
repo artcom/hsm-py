@@ -12,6 +12,7 @@ A hierarchical state machine implemented in Python
 ### Missing features
 
 - local transitions
+- guard conditions
 - orthogonal regions (Parallel)
 
 ## System requirements
