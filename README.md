@@ -99,7 +99,7 @@ To install dev dependencies:
 ```sh
 $ python3 -m venv venv
 $ source venv/bin/activate
-pip install -r requirements_dev.txt
+$ pip install -r requirements_dev.txt
 ```
 
 To run unit tests:
