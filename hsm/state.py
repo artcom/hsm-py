@@ -1,9 +1,12 @@
+from collections.abc import Callable
+from typing import Self
+
 from hsm.transition_kind import TransitionKind
 from hsm.event_handler import EventHandler
 
 
 class State:
-    def __init__(self, name):
+    def __init__(self, name: str):
         """
         Creates a state object
 
@@ -17,15 +20,15 @@ class State:
         self.enter_func = None
         self.exit_func = None
 
-    def add_handler(self, event, target, guard=None, action=None, kind=TransitionKind.EXTERNAL):
+    def add_handler(self, event: str, target: Self, guard: Callable[[any], bool] = None, action: Callable[[any], None] = None, kind: TransitionKind = TransitionKind.EXTERNAL):
         """
         Adds an event handler for state transitions
 
         Args:
             event (str): the name of the event
             target (State): the state to transition to
-            guard (func): the guard condition, can be None
-            action (func): function to be executed on internal transition, can be None
+            guard (func): the guard condition. Should return True if transition should be performed
+            action (func): function to be executed on internal transition
             kind (TransitionKind): kind of transition to perform, defaults to EXTERNAL
 
         Raises:
