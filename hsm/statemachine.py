@@ -24,7 +24,7 @@ class Statemachine:
         self.state = None
         self.container = None
 
-    def setup(self, data: any = None):
+    def setup(self, data: any = None) -> None:
         """
         Starts the statemachine, enters the first state in list
 
@@ -40,7 +40,7 @@ class Statemachine:
         self.state = self._states[0]
         self.enter(None, self.state, data)
 
-    def teardown(self, data: any = None):
+    def teardown(self, data: any = None) -> None:
         """
         Stops the statemachine, exits the current state
 
@@ -50,7 +50,7 @@ class Statemachine:
         self.exit(self.state, None, data)
         self.state = None
 
-    def handle_event(self, name: str, data: any = None):
+    def handle_event(self, name: str, data: any = None) -> None:
         """
         Performs a transition by given event name.
 

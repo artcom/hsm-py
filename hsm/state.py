@@ -20,7 +20,14 @@ class State:
         self.enter_func = None
         self.exit_func = None
 
-    def add_handler(self, event: str, target: Self, guard: Callable[[any], bool] = None, action: Callable[[any], None] = None, kind: TransitionKind = TransitionKind.EXTERNAL):
+    def add_handler(
+        self,
+        event: str,
+        target: Self,
+        guard: Callable[[any], bool] = None,
+        action: Callable[[any], None] = None,
+        kind: TransitionKind = TransitionKind.EXTERNAL
+    ) -> None:
         """
         Adds an event handler for state transitions
 
