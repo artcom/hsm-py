@@ -1,8 +1,9 @@
 from hsm.state import State
+from hsm.statemachine import Statemachine
 
 
 class Sub(State):
-    def __init__(self, name, statemachine):
+    def __init__(self, name: str, statemachine: Statemachine):
         """
         Creates a nested state object
 

@@ -1,14 +1,15 @@
 from hsm.state import State
+from hsm.statemachine import Statemachine
 
 
 class Parallel(State):
-    def __init__(self, name, *statemachines):
+    def __init__(self, name: str, *statemachines: Statemachine):
         """
         Creates an orthoginal region
 
         Args:
             name (str): the name of the state
-            statemachines (list): the statemachines running in parallel
+            statemachines (list:Statemachine): the statemachines running in parallel
         """
         super().__init__(name)
         self.statemachines = statemachines

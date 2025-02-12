@@ -1,17 +1,18 @@
 from collections import deque
 
 from hsm.state import EventHandler
+from hsm.state import State
 from hsm.transition_kind import TransitionKind
 
 
 class Statemachine:
 
-    def __init__(self, *states):
+    def __init__(self, *states: State):
         """
         Creates a statemachine object
 
         Args:
-            states (list): a list of State objects
+            states (list:State): a list of State objects
         """
         for state in states:
             state.owner = self
@@ -23,12 +24,12 @@ class Statemachine:
         self.state = None
         self.container = None
 
-    def setup(self, data=None):
+    def setup(self, data: any = None):
         """
         Starts the statemachine, enters the first state in list
 
         Args:
-            data (Any): data passed to enter, exit and action functions. Can be None.
+            data (any): data passed to enter, exit and action functions. Can be None.
 
         Raises:
             RuntimeError: when no states are set
@@ -39,23 +40,23 @@ class Statemachine:
         self.state = self._states[0]
         self.enter(None, self.state, data)
 
-    def teardown(self, data=None):
+    def teardown(self, data: any = None):
         """
         Stops the statemachine, exits the current state
 
         Args:
-            data (Any): data passed to enter, exit and action functions. Can be None.
+            data (any): data passed to enter, exit and action functions. Can be None.
         """
         self.exit(self.state, None, data)
         self.state = None
 
-    def handle_event(self, name, data=None):
+    def handle_event(self, name: str, data: any = None):
         """
         Performs a transition by given event name.
 
         Args:
             name (str): the name of the event
-            data (Any): data passed to enter, exit and action functions. Can be None.
+            data (any): data passed to enter, exit and action functions. Can be None.
         """
         self._queue.append(_Event(name, data))
 
