@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hsm-py"
-version = "1.5.0"
+version = "1.7.0"
 description = "A hierarchical state machine implemented in Python"
 authors = [
   {name = "Julian Krumow", email = "julian.krumow@artcom.de"},
