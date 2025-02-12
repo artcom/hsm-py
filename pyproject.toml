@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hsm-py"
-version = "1.7.0"
+version = "1.8.0"
 description = "A hierarchical state machine implemented in Python"
 authors = [
   {name = "Julian Krumow", email = "julian.krumow@artcom.de"},
@@ -16,7 +16,7 @@ dependencies = []
 
 [tool.pytest.ini_options]
 minversion = "8.3"
-addopts = "-ra -q"
+addopts = "-ra"
 testpaths = [
     "tests"
 ]
