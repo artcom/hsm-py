@@ -107,3 +107,7 @@ To run unit tests:
 ```sh
 $ python -m pytest tests
 ```
+
+To release a new version:
+
+Update the field `version` in `pyproject.toml` and tag the version.

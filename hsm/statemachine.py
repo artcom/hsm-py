@@ -47,6 +47,9 @@ class Statemachine:
         Args:
             data (any): data passed to enter, exit and action functions. Can be None.
         """
+        if self.state is None:
+            return
+
         self.exit(self.state, None, data)
         self.state = None
 

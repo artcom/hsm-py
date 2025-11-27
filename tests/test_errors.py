@@ -28,3 +28,16 @@ def test_internal_transitions_no_action():
         a.add_handler("test", a, None, kind=TransitionKind.INTERNAL)
     assert str(
         excinfo.value) == "State.addhandler: Action must be set for internal transition!"
+
+
+def test_setup():
+    a = State("a")
+    s = Statemachine(a)
+    s.setup()
+    s.setup()
+
+
+def test_teardown():
+    a = State("a")
+    s = Statemachine(a)
+    s.teardown()
