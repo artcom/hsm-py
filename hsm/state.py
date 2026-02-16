@@ -1,3 +1,4 @@
+import logging
 from collections.abc import Callable
 from typing import Self
 
@@ -13,6 +14,7 @@ class State:
         Args:
             name (str): the name of the state
         """
+        self._logger = logging.getLogger(self.__class__.__name__)
         self._event_handlers = {}
 
         self.name = name
@@ -62,10 +64,12 @@ class State:
             return None
 
     def enter(self, _, __, data):
+        self._logger.info("%s:enter", self.name)
         if self.enter_func is not None:
             self.enter_func(data)
 
     def exit(self, _, __, data):
+        self._logger.info("%s:exit", self.name)
         if self.exit_func is not None:
             self.exit_func(data)
 
