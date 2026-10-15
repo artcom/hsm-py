@@ -41,3 +41,31 @@ def test_teardown():
     a = State("a")
     s = Statemachine(a)
     s.teardown()
+
+
+def test_exception_in_enter_does_not_freeze_the_statemachine():
+    a = State("a")
+    b = State("b")
+    c = State("c")
+
+    def b_enter(_):
+        raise ValueError("boom")
+
+    b.enter_func = b_enter
+
+    a.add_handler("toB", b)
+    b.add_handler("toC", c)
+    a.add_handler("toC", c)
+
+    sm = Statemachine(a, b, c)
+    sm.setup()
+
+    with pytest.raises(ValueError):
+        sm.handle_event("toB")
+
+    assert sm._event_in_progress is False  # pylint: disable=protected-access
+    assert len(sm._queue) == 0  # pylint: disable=protected-access
+
+    # the statemachine must still process events after the exception
+    sm.handle_event("toC")
+    assert sm.active_states() == ["c"]

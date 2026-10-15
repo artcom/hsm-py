@@ -67,10 +67,12 @@ class Statemachine:
             return
 
         self._event_in_progress = True
-        while len(self._queue) > 0:
-            event = self._queue.popleft()
-            self.handle(event.name, event.data)
-        self._event_in_progress = False
+        try:
+            while len(self._queue) > 0:
+                event = self._queue.popleft()
+                self.handle(event.name, event.data)
+        finally:
+            self._event_in_progress = False
 
     def enter(self, source, target, data):
         target_path = target.owner.path()
